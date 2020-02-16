@@ -34,4 +34,8 @@ void Stub32::createParams()
 
     this->m_params[FUNC_LOAD_LIB_RVA] = new StubParam(FUNC_LOAD_LIB_RVA, Stub32Data::pointers[3], 1, sizeof(DWORD));
     this->m_params[FUNC_GET_MODULE_RVA] = new StubParam(FUNC_GET_MODULE_RVA, Stub32Data::pointers[4], 1, sizeof(DWORD));
+
+    this->m_params[AFTER_LOAD_LIB_RVA] = new StubParam(AFTER_LOAD_LIB_RVA, Stub32Data::pointers[5], 1, sizeof(DWORD));
+    this->m_params[AFTER_DATA_RVA] = new StubParam(AFTER_DATA_RVA, Stub32Data::pointers[6], 1, sizeof(DWORD));
+    this->m_params[AFTER_GET_PROC_RVA] = new StubParam(AFTER_GET_PROC_RVA, Stub32Data::pointers[7], 1, sizeof(DWORD));
 }

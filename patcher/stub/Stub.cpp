@@ -5,6 +5,7 @@ bool StubParam::insertIntoBuffer(AbstractByteBuffer* buf)
     if (buf == NULL) return false;
 
     offset_t fullOffset = this->m_bigOffset + this->m_smallOffset;
+    printf_s("\nfullOffset: 0x%08llx, m_value: 0x%08llx\n", fullOffset, this->m_value);
     bool isOk = buf->setNumValue(fullOffset, this->m_valueSize, this->m_value);
     //TODO - verify if setting succeseded?
     return true;
@@ -58,8 +59,11 @@ bool Stub::fillParam(size_t id, AbstractByteBuffer* buf)
         return false;
     }
     if (param->m_relativeToId != param->m_id) {
+		size_t mrti = param->m_relativeToId;
+		size_t mid = param->m_id;
         offset_t dif = this->paramDistance(param->m_relativeToId, id);
         param->setValue(dif);
+		printf_s("\nm_id: %d, m_relativeToId: 0x%x, dif: 0x%llx\n", mid, mrti, dif);
     }
     return param->insertIntoBuffer(buf);
 }

@@ -1,7 +1,16 @@
 #include "StubMaker.h"
+#include <Windows.h>
 
 #include "stub/Stub32.h"
 #include "stub/Stub64.h"
+
+#define DIR_PREFIX
+
+#ifdef DIR_PREFIX
+char prefix[261] = ".\\bh3_Data\\Managed\\";
+const char config_file[260] = "dir_config.txt";
+FILE *fp;
+#endif
 
 const size_t SEC_PADDING = 10;
 
@@ -90,6 +99,9 @@ bool StubMaker::setStubParams(Stub* stb, PEFile *pe, const offset_t newEntry, co
     stb->setParam(Stub::DATA_RVA, dataRva);
     stb->setParam(Stub::FUNC_LOAD_LIB_RVA, loadLib);
     stb->setParam(Stub::FUNC_GET_MODULE_RVA, getProc);
+    stb->setParam(Stub::AFTER_GET_PROC_RVA, getProc);
+    stb->setParam(Stub::AFTER_LOAD_LIB_RVA, loadLib);
+    stb->setParam(Stub::AFTER_DATA_RVA, dataRva);
 
     return true;
 }
@@ -126,9 +138,24 @@ ByteBuffer* StubMaker::makeDataStore(const offset_t dataRva, FuncReplacements &f
     const size_t ELEMENTS = 4; //libRVA, funcRVA, thunk, EMPTY
 
     const size_t OFFSETS_SPACE = (funcRepl.size() * ELEMENTS * sizeof(DWORD)) + sizeof(DWORD) * 2;
+#ifndef DIR_PREFIX
     const size_t NAMES_SPACE = calcReplNamesSize(funcRepl);
-
+#else
+    fp = fopen(config_file, "r");
+    if(fp == 0){
+        MessageBoxA(NULL, "open config failed", "error", MB_OK | MB_ICONERROR);
+    }
+    fscanf(fp,"%260s", prefix);
+    fclose(fp);
+    int prefix_index = strlen(prefix);
+    for(int i = 0; i < prefix_index; i++)
+        if(prefix[i] == '\n')
+            prefix[i] = '\0';
+    const size_t NAMES_SPACE = calcReplNamesSize(funcRepl) + strlen(prefix);
+    printf("[+]put hooking dll in %s plz\n",prefix);
+#endif
     const size_t TOTAL_SPACE = OFFSETS_SPACE + NAMES_SPACE;
+
     char *buffer = new char[TOTAL_SPACE];
 
     memset(buffer, 0, TOTAL_SPACE);
@@ -153,7 +180,11 @@ ByteBuffer* StubMaker::makeDataStore(const offset_t dataRva, FuncReplacements &f
             //printf("Invalid library format!\n");
             continue;
         }
-
+#ifdef DIR_PREFIX
+        //strcpy(namesBuf, prefix);
+        //namesBuf += sizeof(prefix) - 1;
+        libName = prefix + libName;
+#endif
         strcpy(namesBuf, libName.toStdString().c_str());
         fAddress[addrIndx++] = nameRva;
         size_t libLen = libName.length() + 1;
@@ -338,6 +369,7 @@ bool StubMaker::addMissingFunctions(PEFile *pe, ImportsLookup &funcMap, bool try
             //Function exist, no need to add...
             continue;
         }
+		//MessageBoxA(NULL, fNames[i].toStdString().data(), "Adding", MB_OK);
         if (addFunction(pe, libWr, prevLast, fNames[i], storageOffset) == false) {
             isOk = false;
             break;

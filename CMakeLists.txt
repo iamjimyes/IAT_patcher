@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (IAT_Patcher)
 
 # modules:
+set (CMAKE_PREFIX_PATH "D:\\Qt\\5.11.1\\msvc2015\\")
 set ( M_BEARPARSER "bearparser/parser" )
 set ( M_COMMANDER "patcher" )
 

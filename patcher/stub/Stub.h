@@ -46,7 +46,10 @@ public:
         DATA_RVA, //LABEL_dataRVA
         OEP, //LABEL_oldEP
         FUNC_GET_MODULE_RVA,
-        FUNC_LOAD_LIB_RVA
+        FUNC_LOAD_LIB_RVA,
+        AFTER_LOAD_LIB_RVA,
+        AFTER_DATA_RVA,
+        AFTER_GET_PROC_RVA
     };
 
     Stub() { }

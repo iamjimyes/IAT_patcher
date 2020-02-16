@@ -6,6 +6,27 @@ LABEL_dataRVA:
 	mov EBX, 22222222h ; data RVA
 	call init
 after_init:
+LABEL_A_LoadLibrary:
+	mov ESI, 77777777h;
+	add esi, edi
+LABEL_A_dataRVA:
+	mov EBX, 88888888h;
+	add ebx, edi
+	mov ebx, [ebx]
+	add ebx, edi
+	push ebx
+	call [esi]
+LABEL_A_GetProcAddress:
+	mov ECX, 66666666h; After GetProcAddress 
+	add ecx, edi
+	push 0x45455f
+	mov EBX, ESP
+	push ebx
+	push eax
+	call [ecx]
+	test eax, eax
+	jz LABEL_oldEP
+	call eax
 LABEL_oldEP:
     jmp 12345678h ; oep
 init:
@@ -79,3 +100,6 @@ dd (LABEL_dataRVA - start)
 dd (LABEL_oldEP - start)
 dd (LABEL_LoadLibrary - start)
 dd (LABEL_GetProcAddress - start)
+dd (LABEL_A_LoadLibrary - start)
+dd (LABEL_A_dataRVA - start)
+dd (LABEL_A_GetProcAddress - start)
